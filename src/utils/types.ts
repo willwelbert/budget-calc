@@ -13,10 +13,10 @@ export type ProfileData = {
 };
 
 export type Engagement = {
-  likes: number;
-  comments: number;
-  shares: number;
-  followers: number;
+  likes: string;
+  comments: string;
+  shares: string;
+  followers: string;
 };
 
 export type QuotationPayload = {

@@ -1,13 +1,33 @@
 @import "tailwindcss";
+@import "./fonts.css";
+@import "@fontsource/pt-serif/400.css";
+@import "@fontsource/pt-serif/400-italic.css";
+@import "@fontsource/pt-serif/700.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
+/* Big figures: light weight, tight tracking, aligned digits. */
+@utility num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+  font-weight: 200;
+}
+
+/* Small uppercase label above a block. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-heading: var(--font-serif);
+    --font-sans: "Aileron", system-ui, sans-serif;
+    --font-serif: "PT Serif", Georgia, serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

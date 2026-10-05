@@ -1,4 +1,16 @@
 import { Label } from "@/components/ui/label";
+import { Button } from "./ui/button";
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -11,8 +23,12 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 
 import { NICHE_OPTIONS } from "../lib/niches";
+import { useState } from "react";
+import { Separator } from "./ui/separator";
+import { EngagementCalculator } from "./EngagementCalculator";
 
 export function QuoteCalculator() {
+  const [engagementRate, setEngagementRate] = useState(0);
   // add form para profile info
   // form initial data é o retorno da funçao getFromProfile
   // por enquanto podemos salvar o profile no navegador
@@ -42,7 +58,7 @@ export function QuoteCalculator() {
 
   const direitos = [
     { id: "image-use", label: "Direitos de uso de imagem" },
-    { id: "paid-ad", label: "Autorização de conteúdo impulsionado" },
+    { id: "paid-ad", label: "Autorização para conteúdo impulsionado" },
   ];
 
   const entregaveis = [
@@ -67,29 +83,59 @@ export function QuoteCalculator() {
               </SelectGroup>
             </SelectContent>
           </Select>
+
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Label>Taxa de Engajamento: {engagementRate}%</Label>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="mx-auto w-full max-w-sm">
+                <DrawerHeader>
+                  <DrawerTitle>
+                    <h1>Taxa de Engajamento</h1>
+                  </DrawerTitle>
+                  <DrawerDescription>
+                    Preencha ou calcule sua taxa de engajamento
+                  </DrawerDescription>
+                </DrawerHeader>
+                <EngagementCalculator
+                  rate={engagementRate}
+                  setRate={setEngagementRate}
+                />
+                <DrawerFooter>
+                  <Button variant="secondary">Atualizar perfil</Button>
+                  <Button>Salvar</Button>
+                  <DrawerClose asChild>
+                    <Button variant="outline">Cancelar</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </CardHeader>
+        <Separator />
         <CardContent>
-          <div className="grid-cols-2 gap2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="border border-dotted border-black bg-cream col-span-2">
-              Direitos
+              <h3 className="eyebrow">Direitos</h3>
             </div>
 
             {direitos.map((direito) => (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 ">
                 <Switch id={direito.id} />
                 <Label htmlFor={direito.id}>{direito.label}</Label>
               </div>
             ))}
 
             <div className="border border-dotted border-black bg-cream col-span-2">
-              Entregáveis
-              {entregaveis.map((direito) => (
-                <div className="flex items-center space-x-2">
-                  <Switch id={direito.id} />
-                  <Label htmlFor={direito.id}>{direito.label}</Label>
-                </div>
-              ))}
+              <h3 className="eyebrow">Entregáveis</h3>
             </div>
+            {entregaveis.map((direito) => (
+              <div className="flex items-center space-x-2 ">
+                <Switch id={direito.id} />
+                <Label htmlFor={direito.id}>{direito.label}</Label>
+              </div>
+            ))}
           </div>
         </CardContent>
         <CardFooter className="bg-cream">
