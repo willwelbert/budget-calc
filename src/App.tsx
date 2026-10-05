@@ -1,34 +1,17 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { QuoteCalculator } from "./components/QuoteCalculator";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  // add form para profile info
-  // form initial data é o retorno da funçao getFromProfile
-  // por enquanto podemos salvar o profile no navegador
-  // editar perfil:
-  //   - drawer;
-  //     - Seletor de nicho;
-  //     - taxa abs de engajamento: OU (curtidas + comentários + compartilhamentos) / Seguidores = taxa
-  //     - taxa * 100 = porcentagem
-  //   - CTAs: Salvar no perfil, Usar nesta cotação,
-  //
-  //
-  // o payload para a Quotation é formado de 2 forms
-  // 1- profile info
-  // 2- quotation deliverables (toggles)
-  //
-  //
-  //seção resultados:
-  //resultado primário: Valor em Reais em destaque.
-  //motivação estruturada da resposta em detalhes (^) - click
-  //
+  const BG_COLOR = "#1b373c";
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-semibold">Budget Calc</h1>
-      <Button onClick={() => setCount((c) => c + 1)}>Count is {count}</Button>
+    <main className="flex min-h-svh flex-col items-center justify-between gap-4 bg-[#1b373c]">
+      <h1 className="text-lg font-extralight py-2 text-white">added-today</h1>
+      <QuoteCalculator />
+      <div className="py-2 w-full bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent">
+        <p className="text-xs text-center text-white">
+          (c) Copyright 2026 Added Today. All Rights Reserved.
+        </p>
+      </div>
     </main>
   );
 }
