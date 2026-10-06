@@ -26,6 +26,7 @@ import { NICHE_OPTIONS } from "../lib/niches";
 import { useState } from "react";
 import { Separator } from "./ui/separator";
 import { EngagementCalculator } from "./EngagementCalculator";
+import { Deliverables } from "./Deliverables";
 
 export function QuoteCalculator() {
   const [engagementRate, setEngagementRate] = useState(0);
@@ -124,6 +125,7 @@ export function QuoteCalculator() {
             <div className="border border-dotted border-black bg-cream col-span-2">
               <h3 className="eyebrow">Entregáveis</h3>
             </div>
+            <Deliverables />
           </div>
         </CardContent>
         <CardFooter className="bg-cream">
