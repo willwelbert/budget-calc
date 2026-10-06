@@ -26,6 +26,7 @@ import { NICHE_OPTIONS } from "../lib/niches";
 import { useState } from "react";
 import { Separator } from "./ui/separator";
 import { EngagementCalculator } from "./EngagementCalculator";
+import { Deliverables } from "./Deliverables";
 
 export function QuoteCalculator() {
   const [engagementRate, setEngagementRate] = useState(0);
@@ -59,12 +60,6 @@ export function QuoteCalculator() {
   const direitos = [
     { id: "image-use", label: "Direitos de uso de imagem" },
     { id: "paid-ad", label: "Autorização para conteúdo impulsionado" },
-  ];
-
-  const entregaveis = [
-    { id: "in-person-event", label: "Evento presencial" },
-    { id: "instagram-content", label: "Reels/Stories para a campanha?" },
-    { id: "tiktok-content", label: "Videos no TikTok?" },
   ];
 
   return (
@@ -130,12 +125,7 @@ export function QuoteCalculator() {
             <div className="border border-dotted border-black bg-cream col-span-2">
               <h3 className="eyebrow">Entregáveis</h3>
             </div>
-            {entregaveis.map((direito) => (
-              <div className="flex items-center space-x-2 ">
-                <Switch id={direito.id} />
-                <Label htmlFor={direito.id}>{direito.label}</Label>
-              </div>
-            ))}
+            <Deliverables />
           </div>
         </CardContent>
         <CardFooter className="bg-cream">
