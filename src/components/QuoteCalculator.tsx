@@ -24,7 +24,6 @@ import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 
 import { NICHE_OPTIONS } from "../lib/niches";
 import { useState } from "react";
-import { Separator } from "./ui/separator";
 import { EngagementCalculator } from "./EngagementCalculator";
 import { Deliverables } from "./Deliverables";
 
@@ -64,7 +63,7 @@ export function QuoteCalculator() {
 
   return (
     <div className="p-4 w-full">
-      <Card className="w-full bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent">
+      <Card className="w-full rounded-3xl bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent ring-border shadow-[inset_0_1px_0_color-mix(in_srgb,var(--login-foreground)_6%,transparent),0_40px_90px_-40px_#040e10cc] backdrop-blur-[18px]">
         <CardHeader>
           <Select>
             <SelectTrigger className="w-full max-w-48">
@@ -73,7 +72,9 @@ export function QuoteCalculator() {
             <SelectContent>
               <SelectGroup>
                 {NICHE_OPTIONS.map((niche) => (
-                  <SelectItem value={niche.value}>{niche.label}</SelectItem>
+                  <SelectItem key={niche.value} value={niche.value}>
+                    {niche.label}
+                  </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -86,9 +87,7 @@ export function QuoteCalculator() {
             <DrawerContent>
               <div className="mx-auto w-full max-w-sm">
                 <DrawerHeader>
-                  <DrawerTitle>
-                    <h1>Taxa de Engajamento</h1>
-                  </DrawerTitle>
+                  <DrawerTitle>Taxa de Engajamento</DrawerTitle>
                   <DrawerDescription>
                     Preencha ou calcule sua taxa de engajamento
                   </DrawerDescription>
@@ -108,15 +107,17 @@ export function QuoteCalculator() {
             </DrawerContent>
           </Drawer>
         </CardHeader>
-        <Separator />
+        <div className="flex items-center gap-3 px-(--card-spacing)">
+          <span className="h-px flex-1 bg-foreground/10" />
+          <span className="eyebrow">Cotação</span>
+          <span className="h-px flex-1 bg-foreground/10" />
+        </div>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border border-dotted border-black bg-cream col-span-2">
-              <h3 className="eyebrow">Direitos</h3>
-            </div>
+            <h3 className="eyebrow col-span-2">Direitos</h3>
 
             {direitos.map((direito) => (
-              <div className="flex items-center space-x-2 ">
+              <div key={direito.id} className="flex items-center space-x-2">
                 <Switch id={direito.id} />
                 <Label htmlFor={direito.id}>{direito.label}</Label>
               </div>
@@ -128,7 +129,7 @@ export function QuoteCalculator() {
             <Deliverables />
           </div>
         </CardContent>
-        <CardFooter className="bg-cream">
+        <CardFooter className="bg-cream text-primary-foreground">
           <div className="w-full">
             <h2 className="font-semibold tracking-widest text-xl">
               R${quote.start} - R${quote.end}
