@@ -14,10 +14,10 @@ function FormHarness({ children }: { children: ReactNode }) {
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
-function renderCalculator() {
+function renderCalculator(onComplete?: () => void) {
   return render(
     <FormHarness>
-      <EngagementCalculator />
+      <EngagementCalculator onComplete={onComplete} />
     </FormHarness>,
   );
 }
@@ -51,5 +51,106 @@ describe("EngagementCalculator", () => {
     await user.tab();
 
     expect(screen.getByText("4,5%")).toBeInTheDocument();
+  });
+
+  it("closes the rate editor on Enter", async () => {
+    const user = userEvent.setup();
+    renderCalculator();
+
+    await user.click(screen.getByText("0%"));
+    await user.type(
+      screen.getByPlaceholderText("taxa de engajamento"),
+      "4,5{Enter}",
+    );
+
+    expect(
+      screen.queryByPlaceholderText("taxa de engajamento"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("4,5%")).toBeInTheDocument();
+  });
+
+  it("clears the calculator inputs when the rate is typed manually", async () => {
+    const user = userEvent.setup();
+    renderCalculator();
+
+    await user.type(screen.getByPlaceholderText("Curtidas"), "70");
+    await user.type(screen.getByPlaceholderText("Seguidores"), "1000");
+    await user.click(screen.getByText("7.00%"));
+    await user.clear(screen.getByPlaceholderText("taxa de engajamento"));
+    await user.type(screen.getByPlaceholderText("taxa de engajamento"), "3");
+
+    expect(screen.getByPlaceholderText("Curtidas")).toHaveValue("");
+    expect(screen.getByPlaceholderText("Seguidores")).toHaveValue("");
+    expect(screen.getByPlaceholderText("taxa de engajamento")).toHaveValue("3");
+  });
+
+  it("moves focus Likes -> Comments -> Shares -> Followers on Enter", async () => {
+    const user = userEvent.setup();
+    renderCalculator();
+
+    await user.type(screen.getByPlaceholderText("Curtidas"), "70{Enter}");
+    expect(screen.getByPlaceholderText("Comentários")).toHaveFocus();
+
+    await user.keyboard("5{Enter}");
+    expect(screen.getByPlaceholderText("Compartilhamentos")).toHaveFocus();
+
+    await user.keyboard("2{Enter}");
+    expect(screen.getByPlaceholderText("Seguidores")).toHaveFocus();
+  });
+
+  it("calls onComplete on Enter in Followers once the rate is calculated", async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    renderCalculator(onComplete);
+
+    await user.type(screen.getByPlaceholderText("Curtidas"), "70");
+    await user.type(screen.getByPlaceholderText("Seguidores"), "1000{Enter}");
+
+    expect(onComplete).toHaveBeenCalledOnce();
+  });
+
+  it("does not call onComplete on Enter while Followers is empty", async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    renderCalculator(onComplete);
+
+    await user.type(screen.getByPlaceholderText("Curtidas"), "70");
+    await user.type(screen.getByPlaceholderText("Seguidores"), "{Enter}");
+
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it("closes the rate editor with the confirm button", async () => {
+    const user = userEvent.setup();
+    renderCalculator();
+
+    await user.click(screen.getByText("0%"));
+    await user.type(screen.getByPlaceholderText("taxa de engajamento"), "4,5");
+    await user.click(screen.getByRole("button", { name: "Confirmar" }));
+
+    expect(
+      screen.queryByPlaceholderText("taxa de engajamento"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("4,5%")).toBeInTheDocument();
+  });
+
+  it("moves through the fields with the next button and then calls onComplete", async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    renderCalculator(onComplete);
+
+    await user.type(screen.getByPlaceholderText("Curtidas"), "70");
+    await user.click(screen.getByRole("button", { name: "Próximo" }));
+    expect(screen.getByPlaceholderText("Comentários")).toHaveFocus();
+
+    await user.click(screen.getByRole("button", { name: "Próximo" }));
+    expect(screen.getByPlaceholderText("Compartilhamentos")).toHaveFocus();
+
+    await user.click(screen.getByRole("button", { name: "Próximo" }));
+    expect(screen.getByPlaceholderText("Seguidores")).toHaveFocus();
+
+    await user.keyboard("1000");
+    await user.click(screen.getByRole("button", { name: "Próximo" }));
+    expect(onComplete).toHaveBeenCalledOnce();
   });
 });

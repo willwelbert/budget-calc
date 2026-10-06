@@ -23,6 +23,7 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 
 import { NICHE_OPTIONS } from "../lib/niches";
+import { useRef } from "react";
 import { Controller, FormProvider, useWatch } from "react-hook-form";
 import { Separator } from "./ui/separator";
 import { EngagementCalculator } from "./EngagementCalculator";
@@ -45,6 +46,7 @@ const direitos: Direito[] = [
 
 export function QuoteCalculator() {
   const { form, handleSubmit } = useQuotationForm();
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
   const engagementRate = useWatch({
     control: form.control,
     name: "engagementRate",
@@ -116,10 +118,12 @@ export function QuoteCalculator() {
                       Preencha ou calcule sua taxa de engajamento
                     </DrawerDescription>
                   </DrawerHeader>
-                  <EngagementCalculator />
+                  <EngagementCalculator
+                    onComplete={() => saveButtonRef.current?.focus()}
+                  />
                   <DrawerFooter>
                     <Button variant="secondary">Atualizar perfil</Button>
-                    <Button>Salvar</Button>
+                    <Button ref={saveButtonRef}>Salvar</Button>
                     <DrawerClose asChild>
                       <Button variant="outline">Cancelar</Button>
                     </DrawerClose>
