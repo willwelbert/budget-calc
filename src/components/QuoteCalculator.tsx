@@ -41,7 +41,10 @@ type Direito = {
 
 const direitos: Direito[] = [
   { id: "includesImageRights", label: "Direitos de uso de imagem" },
-  { id: "includesBoostRights", label: "Autorização para conteúdo impulsionado" },
+  {
+    id: "includesBoostRights",
+    label: "Autorização para conteúdo impulsionado",
+  },
 ];
 
 export function QuoteCalculator() {
@@ -115,7 +118,8 @@ export function QuoteCalculator() {
                       <h1>Taxa de Engajamento</h1>
                     </DrawerTitle>
                     <DrawerDescription>
-                      Preencha ou calcule sua taxa de engajamento
+                      Preencha ou calcule sua taxa de engajamento. <br /> Média
+                      por post (últimos posts)
                     </DrawerDescription>
                   </DrawerHeader>
                   <EngagementCalculator

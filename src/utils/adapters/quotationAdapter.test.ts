@@ -49,6 +49,17 @@ describe("adaptFormToQuotationPayload", () => {
   });
 });
 
+describe("adaptFormToQuotationPayload rate parsing", () => {
+  it("parses an ungrouped pt-BR rate above 1000%", () => {
+    const payload = adaptFormToQuotationPayload({
+      ...DEFAULT_QUOTATION_FORM_VALUES,
+      engagementRate: "1234,5",
+    });
+
+    expect(payload.engagementRate).toBe(12.345);
+  });
+});
+
 describe("adaptProfileToForm", () => {
   it("converts profile numbers to form strings and the rate fraction to a percentage", () => {
     const profile: ProfileData = {
