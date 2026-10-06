@@ -69,7 +69,7 @@ describe("EngagementCalculator", () => {
     expect(screen.getByText("4,5%")).toBeInTheDocument();
   });
 
-  it("clears the calculator inputs when the rate is typed manually", async () => {
+  it("clears the post numbers but keeps followers when the rate is typed manually", async () => {
     const user = userEvent.setup();
     renderCalculator();
 
@@ -80,8 +80,24 @@ describe("EngagementCalculator", () => {
     await user.type(screen.getByLabelText("Taxa de engajamento"), "3");
 
     expect(screen.getByLabelText("Curtidas")).toHaveValue("");
-    expect(screen.getByLabelText("Seguidores")).toHaveValue("");
+    expect(screen.getByLabelText("Seguidores")).toHaveValue("1.000");
     expect(screen.getByLabelText("Taxa de engajamento")).toHaveValue("3");
+  });
+
+  it("starts Followers from defaultFollowers without touching the rate", async () => {
+    const user = userEvent.setup();
+    render(
+      <FormHarness>
+        <EngagementCalculator defaultFollowers="2000" />
+      </FormHarness>,
+    );
+
+    expect(screen.getByLabelText("Seguidores")).toHaveValue("2.000");
+    expect(screen.getByText("0%")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Curtidas"), "90");
+
+    expect(screen.getByText("4,5%")).toBeInTheDocument();
   });
 
   it("moves focus Likes -> Comments -> Shares -> Followers on Enter", async () => {
