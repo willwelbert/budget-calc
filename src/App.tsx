@@ -1,8 +1,6 @@
 import { QuoteCalculator } from "./components/QuoteCalculator";
 
 function App() {
-  const BG_COLOR = "#1b373c";
-
   return (
     <main className="flex min-h-svh flex-col items-center justify-between gap-4 bg-[#1b373c]">
       <h1 className="text-lg font-extralight py-2 text-white">added-today</h1>

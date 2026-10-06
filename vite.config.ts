@@ -6,6 +6,8 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages serves the site from /budget-calc/
+  base: process.env.GITHUB_ACTIONS ? '/budget-calc/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
