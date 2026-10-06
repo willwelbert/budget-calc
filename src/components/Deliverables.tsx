@@ -1,9 +1,10 @@
-import { useState, type ComponentType } from "react";
+import type { ComponentType } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 import { Sticker } from "./Sticker";
 import { InstagramIcon } from "./icons/InstagramIcon";
 import { TikTokIcon } from "./icons/TikTokIcon";
 import { TicketIcon } from "./icons/TicketIcon";
-import type { QuotationPayload } from "../utils/types";
+import type { QuotationFormData, QuotationPayload } from "../utils/types";
 
 type Deliverables = Pick<
   QuotationPayload,
@@ -38,27 +39,24 @@ const entregaveis: Entregavel[] = [
   },
 ];
 export function Deliverables() {
-  const [deliverables, setDeliverables] = useState<Deliverables>({
-    includesEvent: false,
-    includesReelsCombo: false,
-    includesTiktokVideo: false,
-  });
+  const { control } = useFormContext<QuotationFormData>();
   return (
     <div className="col-span-2 grid grid-cols-3 gap-4">
       {entregaveis.map((entregavel) => (
-        <Sticker
+        <Controller
           key={entregavel.id}
-          id={entregavel.id}
-          label={entregavel.label}
-          icon={entregavel.icon}
-          rotate={entregavel.rotate}
-          checked={deliverables[entregavel.id]}
-          onCheckedChange={(checked) =>
-            setDeliverables((prev) => ({
-              ...prev,
-              [entregavel.id]: checked,
-            }))
-          }
+          control={control}
+          name={entregavel.id}
+          render={({ field }) => (
+            <Sticker
+              id={entregavel.id}
+              label={entregavel.label}
+              icon={entregavel.icon}
+              rotate={entregavel.rotate}
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
         />
       ))}
     </div>

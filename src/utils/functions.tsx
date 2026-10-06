@@ -1,31 +1,20 @@
-import type { ProfileData, QuotationPayload, Engagement } from "./types";
+import type { Engagement } from "./types";
+import { parseNumericInput } from "./adapters/quotationAdapter";
 
-export function getQuotationDataFromProfile(
-  profile: ProfileData,
-): Partial<QuotationPayload> {
-  return {
-    niche: profile.niche,
-    engagementRate: profile.engagementRate,
+// Returns the engagement rate as a percentage, or null while the inputs
+// can't produce one yet (no followers, non-numeric values).
+export function getEngagementRate(props: Partial<Engagement>): number | null {
+  const likes = parseNumericInput(props.likes ?? "");
+  const comments = parseNumericInput(props.comments ?? "");
+  const shares = parseNumericInput(props.shares ?? "");
+  const followers = parseNumericInput(props.followers ?? "");
 
-    youtubeSubscribers: profile.followers.youtube,
-    instagramFollowers: profile.followers.instagram,
-    tiktokFollowers: profile.followers.tiktok,
-    estimatedTiktokViews: profile.views.tiktok,
-  };
-}
-
-export function getEngagementRate(props: Partial<Engagement>): number {
-  const likes = Number(props.likes);
-  const comments = Number(props.comments);
-  const shares = Number(props.shares);
-  const followers = Number(props.followers);
-
-  if (followers <= 0 || isNaN(followers)) {
-    throw new Error("Precisamos de ao menos 1 seguidor");
+  if (isNaN(followers) || followers <= 0) {
+    return null;
   }
 
   if (isNaN(likes) || isNaN(comments) || isNaN(shares)) {
-    throw new Error("Curtidas, Comentários e Shares precisam ser números");
+    return null;
   }
 
   const engagement_sum = likes + comments + shares;

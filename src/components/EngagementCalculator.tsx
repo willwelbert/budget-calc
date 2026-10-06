@@ -1,76 +1,73 @@
 import { Separator } from "./ui/separator";
 
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  useState,
-  type ChangeEvent,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
-
-type StringStateSetter = Dispatch<SetStateAction<string>>;
-
-type EngagementCalculatorProps = {
-  rate: number;
-  setRate: Dispatch<SetStateAction<number>>;
-};
+import { useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { getEngagementRate } from "../utils/functions";
+import type { Engagement, QuotationFormData } from "../utils/types";
 import { Forward, Heart, MessageSquare, UserRoundGroup } from "lucide-react";
 
-function RateEditor({
-  rate,
-  setRate,
-}: {
-  rate: number;
-  setRate: Dispatch<SetStateAction<number>>;
-}) {
+function RateEditor() {
   const [active, setActive] = useState<boolean>(false);
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<QuotationFormData>();
+  const rate = useWatch<QuotationFormData, "engagementRate">({
+    name: "engagementRate",
+  });
 
-  return active ? (
-    <Input
-      id="rate"
-      type="number"
-      placeholder="taxa de engajamento"
-      value={rate}
-      onChange={(evt) => setRate(Number(evt.target.value))}
-      onBlur={() => setActive(false)}
-    />
-  ) : (
-    <h3
-      className="text-4xl font-black tracking-widest"
-      onClick={() => setActive(true)}
-    >
-      {rate.toFixed(2)}%
-    </h3>
+  return (
+    <div className="flex flex-col items-center">
+      {active ? (
+        <Input
+          id="rate"
+          type="text"
+          inputMode="decimal"
+          placeholder="taxa de engajamento"
+          autoFocus
+          {...register("engagementRate", { onBlur: () => setActive(false) })}
+        />
+      ) : (
+        <h3
+          className="text-4xl font-black tracking-widest"
+          onClick={() => setActive(true)}
+        >
+          {rate || "0"}%
+        </h3>
+      )}
+      <FieldError errors={[errors.engagementRate]} />
+    </div>
   );
 }
 
-export function EngagementCalculator({
-  rate,
-  setRate,
-}: EngagementCalculatorProps) {
-  const [likes, setLikes] = useState("");
-  const [comments, setComments] = useState("");
-  const [shares, setShares] = useState("");
-  const [followers, setFollowers] = useState("");
+const EMPTY_ENGAGEMENT: Engagement = {
+  likes: "",
+  comments: "",
+  shares: "",
+  followers: "",
+};
 
-  function calculateRate(
-    evt: ChangeEvent<HTMLInputElement>,
-    localSetter: StringStateSetter,
-  ) {
-    const newValue = evt.target.value;
+export function EngagementCalculator() {
+  const { setValue } = useFormContext<QuotationFormData>();
+  const [engagement, setEngagement] = useState<Engagement>(EMPTY_ENGAGEMENT);
 
-    localSetter(newValue);
-    const newRate = getEngagementRate({ likes, comments, shares, followers });
-    setRate(newRate);
+  function updateEngagement(field: keyof Engagement, value: string) {
+    const next = { ...engagement, [field]: value };
+    setEngagement(next);
+
+    const newRate = getEngagementRate(next);
+    if (newRate !== null) {
+      setValue("engagementRate", newRate.toFixed(2), { shouldValidate: true });
+    }
   }
 
   return (
     <div className="p-4 py-0">
       <div className="flex items-center justify-center space-x-2">
-        <RateEditor rate={rate} setRate={setRate} />
+        <RateEditor />
       </div>
       <div className="pt-6">
         <div className="grid grid-cols-3 gap-2 h-full">
@@ -81,10 +78,11 @@ export function EngagementCalculator({
               </FieldLabel>
               <Input
                 id="likes"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="Curtidas"
-                value={likes}
-                onChange={(e) => calculateRate(e, setLikes)}
+                value={engagement.likes}
+                onChange={(e) => updateEngagement("likes", e.target.value)}
               />
             </Field>
             +
@@ -96,10 +94,11 @@ export function EngagementCalculator({
               </FieldLabel>
               <Input
                 id="comments"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="Comentários"
-                value={comments}
-                onChange={(e) => calculateRate(e, setComments)}
+                value={engagement.comments}
+                onChange={(e) => updateEngagement("comments", e.target.value)}
               />
             </Field>
             +
@@ -111,10 +110,11 @@ export function EngagementCalculator({
               </FieldLabel>
               <Input
                 id="shares"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="Compartilhamentos"
-                value={shares}
-                onChange={(e) => calculateRate(e, setShares)}
+                value={engagement.shares}
+                onChange={(e) => updateEngagement("shares", e.target.value)}
               />
             </Field>
           </div>
@@ -123,10 +123,11 @@ export function EngagementCalculator({
             <Input
               className="text-center"
               id="followers"
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="Seguidores"
-              value={followers}
-              onChange={(e) => calculateRate(e, setFollowers)}
+              value={engagement.followers}
+              onChange={(e) => updateEngagement("followers", e.target.value)}
             />
             <FieldLabel className="flex justify-center" htmlFor="followers">
               <UserRoundGroup />
