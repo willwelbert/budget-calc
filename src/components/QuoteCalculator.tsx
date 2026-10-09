@@ -1,33 +1,11 @@
 import { Label } from "@/components/ui/label";
-import { Button } from "./ui/button";
-
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 
-import { NICHE_OPTIONS } from "../lib/niches";
-import { useRef } from "react";
-import { Controller, FormProvider, useWatch } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
 import { Separator } from "./ui/separator";
-import { EngagementCalculator } from "./EngagementCalculator";
 import { Deliverables } from "./Deliverables";
+import { ProfileHeader } from "./ProfileHeader";
 import { useQuotationForm } from "../hooks/useQuotationForm";
 import type { QuotationFormData } from "../utils/types";
 
@@ -49,11 +27,6 @@ const direitos: Direito[] = [
 
 export function QuoteCalculator() {
   const { form, handleSubmit } = useQuotationForm();
-  const saveButtonRef = useRef<HTMLButtonElement>(null);
-  const engagementRate = useWatch({
-    control: form.control,
-    name: "engagementRate",
-  });
   // add form para profile info
   // form initial data é o retorno da funçao getFromProfile
   // por enquanto podemos salvar o profile no navegador
@@ -86,55 +59,7 @@ export function QuoteCalculator() {
       <form className="p-4 w-full" onSubmit={handleSubmit}>
         <Card className="w-full bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent">
           <CardHeader>
-            <Controller
-              control={form.control}
-              name="niche"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full max-w-48">
-                    <SelectValue placeholder="Selecione um nicho" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {NICHE_OPTIONS.map((niche) => (
-                        <SelectItem key={niche.value} value={niche.value}>
-                          {niche.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Label>Taxa de Engajamento: {engagementRate || "0"}%</Label>
-              </DrawerTrigger>
-              <DrawerContent>
-                <div className="mx-auto w-full max-w-sm">
-                  <DrawerHeader>
-                    <DrawerTitle>
-                      <h1>Taxa de Engajamento</h1>
-                    </DrawerTitle>
-                    <DrawerDescription>
-                      Preencha ou calcule sua taxa de engajamento. <br /> Média
-                      por post (últimos posts)
-                    </DrawerDescription>
-                  </DrawerHeader>
-                  <EngagementCalculator
-                    onComplete={() => saveButtonRef.current?.focus()}
-                  />
-                  <DrawerFooter>
-                    <Button variant="secondary">Atualizar perfil</Button>
-                    <Button ref={saveButtonRef}>Salvar</Button>
-                    <DrawerClose asChild>
-                      <Button variant="outline">Cancelar</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </div>
-              </DrawerContent>
-            </Drawer>
+            <ProfileHeader />
           </CardHeader>
           <Separator />
           <CardContent>
