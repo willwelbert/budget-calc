@@ -23,13 +23,37 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 
 import { NICHE_OPTIONS } from "../lib/niches";
-import { useState } from "react";
+import { useRef } from "react";
+import { Controller, FormProvider, useWatch } from "react-hook-form";
 import { Separator } from "./ui/separator";
 import { EngagementCalculator } from "./EngagementCalculator";
 import { Deliverables } from "./Deliverables";
+import { useQuotationForm } from "../hooks/useQuotationForm";
+import type { QuotationFormData } from "../utils/types";
+
+type Direito = {
+  id: keyof Pick<
+    QuotationFormData,
+    "includesImageRights" | "includesBoostRights"
+  >;
+  label: string;
+};
+
+const direitos: Direito[] = [
+  { id: "includesImageRights", label: "Direitos de uso de imagem" },
+  {
+    id: "includesBoostRights",
+    label: "Autorização para conteúdo impulsionado",
+  },
+];
 
 export function QuoteCalculator() {
-  const [engagementRate, setEngagementRate] = useState(0);
+  const { form, handleSubmit } = useQuotationForm();
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const engagementRate = useWatch({
+    control: form.control,
+    name: "engagementRate",
+  });
   // add form para profile info
   // form initial data é o retorno da funçao getFromProfile
   // por enquanto podemos salvar o profile no navegador
@@ -57,85 +81,100 @@ export function QuoteCalculator() {
     end: 5000,
   };
 
-  const direitos = [
-    { id: "image-use", label: "Direitos de uso de imagem" },
-    { id: "paid-ad", label: "Autorização para conteúdo impulsionado" },
-  ];
-
   return (
-    <div className="p-4 w-full">
-      <Card className="w-full bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent">
-        <CardHeader>
-          <Select>
-            <SelectTrigger className="w-full max-w-48">
-              <SelectValue placeholder="Selecione um nicho" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {NICHE_OPTIONS.map((niche) => (
-                  <SelectItem value={niche.value}>{niche.label}</SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+    <FormProvider {...form}>
+      <form className="p-4 w-full" onSubmit={handleSubmit}>
+        <Card className="w-full bg-linear-160/srgb from-login-foreground/5.5 via-login-foreground/1.5 via-45% to-transparent">
+          <CardHeader>
+            <Controller
+              control={form.control}
+              name="niche"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full max-w-48">
+                    <SelectValue placeholder="Selecione um nicho" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {NICHE_OPTIONS.map((niche) => (
+                        <SelectItem key={niche.value} value={niche.value}>
+                          {niche.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
+            />
 
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Label>Taxa de Engajamento: {engagementRate}%</Label>
-            </DrawerTrigger>
-            <DrawerContent>
-              <div className="mx-auto w-full max-w-sm">
-                <DrawerHeader>
-                  <DrawerTitle>
-                    <h1>Taxa de Engajamento</h1>
-                  </DrawerTitle>
-                  <DrawerDescription>
-                    Preencha ou calcule sua taxa de engajamento
-                  </DrawerDescription>
-                </DrawerHeader>
-                <EngagementCalculator
-                  rate={engagementRate}
-                  setRate={setEngagementRate}
-                />
-                <DrawerFooter>
-                  <Button variant="secondary">Atualizar perfil</Button>
-                  <Button>Salvar</Button>
-                  <DrawerClose asChild>
-                    <Button variant="outline">Cancelar</Button>
-                  </DrawerClose>
-                </DrawerFooter>
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Label>Taxa de Engajamento: {engagementRate || "0"}%</Label>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="mx-auto w-full max-w-sm">
+                  <DrawerHeader>
+                    <DrawerTitle>
+                      <h1>Taxa de Engajamento</h1>
+                    </DrawerTitle>
+                    <DrawerDescription>
+                      Preencha ou calcule sua taxa de engajamento. <br /> Média
+                      por post (últimos posts)
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <EngagementCalculator
+                    onComplete={() => saveButtonRef.current?.focus()}
+                  />
+                  <DrawerFooter>
+                    <Button variant="secondary">Atualizar perfil</Button>
+                    <Button ref={saveButtonRef}>Salvar</Button>
+                    <DrawerClose asChild>
+                      <Button variant="outline">Cancelar</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </CardHeader>
+          <Separator />
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border border-dotted border-black bg-cream col-span-2">
+                <h3 className="eyebrow">Direitos</h3>
               </div>
-            </DrawerContent>
-          </Drawer>
-        </CardHeader>
-        <Separator />
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="border border-dotted border-black bg-cream col-span-2">
-              <h3 className="eyebrow">Direitos</h3>
-            </div>
 
-            {direitos.map((direito) => (
-              <div className="flex items-center space-x-2 ">
-                <Switch id={direito.id} />
-                <Label htmlFor={direito.id}>{direito.label}</Label>
+              {direitos.map((direito) => (
+                <div key={direito.id} className="flex items-center space-x-2 ">
+                  <Controller
+                    control={form.control}
+                    name={direito.id}
+                    render={({ field }) => (
+                      <Switch
+                        id={direito.id}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <Label htmlFor={direito.id}>{direito.label}</Label>
+                </div>
+              ))}
+
+              <div className="border border-dotted border-black bg-cream col-span-2">
+                <h3 className="eyebrow">Entregáveis</h3>
               </div>
-            ))}
-
-            <div className="border border-dotted border-black bg-cream col-span-2">
-              <h3 className="eyebrow">Entregáveis</h3>
+              <Deliverables />
             </div>
-            <Deliverables />
-          </div>
-        </CardContent>
-        <CardFooter className="bg-cream">
-          <div className="w-full">
-            <h2 className="font-semibold tracking-widest text-xl">
-              R${quote.start} - R${quote.end}
-            </h2>
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+          </CardContent>
+          <CardFooter className="bg-cream">
+            <div className="w-full">
+              <h2 className="font-semibold tracking-widest text-xl">
+                R${quote.start} - R${quote.end}
+              </h2>
+            </div>
+          </CardFooter>
+        </Card>
+      </form>
+    </FormProvider>
   );
 }
