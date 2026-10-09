@@ -8,12 +8,14 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 import { getEngagementRate } from "../utils/functions";
+import { formatCount, rateFormatter } from "../utils/format";
 import type { Engagement, QuotationFormData } from "../utils/types";
+import { BARE_GROUP_CLASS, BARE_INPUT_CLASS, keepInputFocus } from "./bareInput";
 import {
   ArrowRight,
   Check,
@@ -23,31 +25,8 @@ import {
   UserRoundGroup,
 } from "lucide-react";
 
-// iOS number pads have no return key, so buttons stand in for Enter.
-// Preventing mousedown keeps focus (and the keyboard) on the input.
-function keepInputFocus(evt: MouseEvent) {
-  evt.preventDefault();
-}
-
-// Borderless inputs: the number is the hero, focus shows as a soft tint
-const BARE_GROUP_CLASS =
-  "h-auto rounded-lg border-0 bg-transparent has-[[data-slot=input-group-control]:focus-visible]:bg-muted/60 has-[[data-slot=input-group-control]:focus-visible]:ring-0";
-const BARE_INPUT_CLASS =
-  "h-auto text-center font-black tabular-nums placeholder:text-muted-foreground/40";
 // Floats over the input so showing it doesn't shift the centered number
 const FLOATING_ADDON_CLASS = "absolute right-0";
-
-const countFormatter = new Intl.NumberFormat("pt-BR");
-// No grouping: the stored rate must stay parseable by parseNumericInput
-const rateFormatter = new Intl.NumberFormat("pt-BR", {
-  maximumFractionDigits: 2,
-  useGrouping: false,
-});
-
-// State keeps raw digits ("12500"); only the display gets separators ("12.500")
-function formatCount(digits: string) {
-  return digits ? countFormatter.format(Number(digits)) : "";
-}
 
 function RateEditor({ onManualInput }: { onManualInput: () => void }) {
   const [active, setActive] = useState<boolean>(false);
@@ -124,13 +103,19 @@ const ENGAGEMENT_FIELDS: (keyof Engagement)[] = [
 
 type EngagementCalculatorProps = {
   onComplete?: () => void;
+  /** Raw digits to start "Seguidores" with, e.g. the profile's total audience. */
+  defaultFollowers?: string;
 };
 
 export function EngagementCalculator({
   onComplete,
+  defaultFollowers = "",
 }: EngagementCalculatorProps) {
   const { setValue } = useFormContext<QuotationFormData>();
-  const [engagement, setEngagement] = useState<Engagement>(EMPTY_ENGAGEMENT);
+  const [engagement, setEngagement] = useState<Engagement>({
+    ...EMPTY_ENGAGEMENT,
+    followers: defaultFollowers,
+  });
   const [focusedField, setFocusedField] = useState<keyof Engagement | null>(
     null,
   );
@@ -195,7 +180,16 @@ export function EngagementCalculator({
   return (
     <div className="p-0">
       <div className="flex items-center justify-center space-x-2">
-        <RateEditor onManualInput={() => setEngagement(EMPTY_ENGAGEMENT)} />
+        {/* A typed rate no longer matches the post numbers, but followers
+            still describe the profile, so they stay for the next calculation */}
+        <RateEditor
+          onManualInput={() =>
+            setEngagement((prev) => ({
+              ...EMPTY_ENGAGEMENT,
+              followers: prev.followers,
+            }))
+          }
+        />
       </div>
       <div className="pt-6">
         <div className="grid grid-cols-3 gap-2 h-full">
